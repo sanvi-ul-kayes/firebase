@@ -11,9 +11,9 @@ import {
 const App = () => {
   let [task, setTask] = useState("");
   let [todos, setAllTodos] = useState([]);
+  const db = getDatabase();
 
   let handlesubmit = () => {
-    const db = getDatabase();
     set(push(ref(db, "todos/")), {
       name: task,
     }).then(() => {
@@ -26,21 +26,19 @@ const App = () => {
     setTask(e.target.value);
   };
   let handleDelete = (id) => {
-    const db = getDatabase();
     remove(ref(db, "todos/" + id));
   };
 
   useEffect(() => {
-    const db = getDatabase();
     const getTodos = ref(db, "todos/");
-    let array = [];
     onValue(getTodos, (snapshot) => {
+      const array = [];
       snapshot.forEach((item) => {
         array.push({ ...item.val(), id: item.key });
       });
       setAllTodos(array);
     });
-  }, []);
+  }, [db]);
 
   return (
     <>
@@ -62,7 +60,7 @@ const App = () => {
         <ul>
           {todos.map((item) => {
             return (
-              <li className="mb-[5px]">
+              <li key={item.id} className="mb-[5px]">
                 {item.name}
                 <button
                   onClick={() => {
